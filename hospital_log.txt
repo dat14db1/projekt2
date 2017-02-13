@@ -1,0 +1,3 @@
+Beginning of log file.
+Read attempt of record with id 2 by user with id 5 at 2017-02-13 20:53:43.
+Create attempt by user with id 2 at 2017-02-13 20:53:43.

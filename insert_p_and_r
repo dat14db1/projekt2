@@ -1,0 +1,7 @@
+
+INSERT INTO persons VALUES (default, 'Emma Andersson', 1, 1);
+INSERT INTO persons VALUES (default, 'Karl Persson', 2, 1);
+INSERT INTO persons VALUES (default, 'Olle Vik', 3, 3);
+INSERT INTO persons VALUES (default, 'Socialstyrelsen', 4, 3);
+
+INSERT INTO records VALUES (default, 'Brutet ben', 3, 1, 2, 2);
