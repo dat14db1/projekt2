@@ -68,15 +68,16 @@ public class SQLTest{
             conn = ld.conn;
             if (conn == null) System.out.println("Conn är null" ); 
             statement = conn.createStatement();
-            readRecord(2, 5);
+            //readRecord(2, 5);
             //deleteRecord(2, 4);
             //updateRecord(3, 1, "Huvudvärk");
-            createRecord(2, 2, 3, 2, "Ont i höger stortå.");
+            //createRecord(2, 2, 3, 2, "Ont i höger stortå.");
             
+            /*
             ArrayList<Record> list = listRecords(3);
             for (Record r : list) {
                 System.out.println("record: " + r.text);
-            }
+            }*/
 
         } catch (SQLException ex) {
             // handle any errors

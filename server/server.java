@@ -4,10 +4,12 @@ import java.security.KeyStore;
 import javax.net.*;
 import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
+import java.util.ArrayList;
 
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
+    private int personID = 3;
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -35,8 +37,17 @@ public class server implements Runnable {
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
 
 // connected, write to client
-            String welcome = "Welcome! ";
-            SQLTest sqlTest = new SQLTest();
+            SQLTest sqlTest = new SQLTest(); 
+            ArrayList<Record> records = sqlTest.listRecords(personID);
+            int nolines = records.size() + 4;
+            StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome, " + subject + "! \n \n");
+
+            welcome_message.append("You have permission to read the following patient records: \n");
+
+            for(Record rec : records){
+                welcome_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
+            }
+            
             // Record temp = sqlTest.readRecord(2, 5);
             // System.out.println("res: " + temp.text);
 
@@ -46,12 +57,39 @@ public class server implements Runnable {
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+            out.println(welcome_message.toString());
+            System.out.println(welcome_message.toString());
+            out.flush();
+
             String clientMsg = null;
+            StringBuilder answer_message = new StringBuilder();
             while ((clientMsg = in.readLine()) != null) {
-			    String rev = new StringBuilder(clientMsg).reverse().toString();
-                System.out.println("received '" + clientMsg + "' from client");
-                System.out.print("sending '" + rev + "' to client...");
-				out.println(rev);
+                //Handle request
+                //Put words in array
+
+                String[] words = clientMsg.split("[\\n\\s]");//splits on everythin but alphanumerical characters
+                System.out.println(words[0]);
+                answer_message.setLength(0);
+                switch (words[0]) {
+                    case "list":
+                        System.out.println("list called.");
+                        records.clear();
+                        records = sqlTest.listRecords(personID);
+                        nolines = records.size() + 1;
+                        answer_message.append(nolines + "\n");
+                        for(Record rec : records){
+                            answer_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
+                        }
+                        break;
+                    default:
+                        answer_message.append(2 + "\nInvalid operation.\n");
+                        System.out.println("client msg: " + clientMsg);
+                        break;
+                }
+			    //String rev = new StringBuilder(clientMsg).reverse().toString();
+                System.out.println("received '\n" + clientMsg + "\n' from client");
+                System.out.print("sending '" + answer_message.toString() + "' to client...");
+				out.println(answer_message.toString());
 				out.flush();
                 System.out.println("done\n");
 			}
