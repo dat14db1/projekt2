@@ -1,0 +1,9 @@
+INSERT INTO divisions VALUES (default, 'No division');
+INSERT INTO divisions VALUES (default, 'Kirurgen');
+INSERT INTO divisions VALUES (default, 'Neurologen');
+
+
+INSERT INTO roles VALUES (default, 'Doctor');
+INSERT INTO roles VALUES (default, 'Nurse');
+INSERT INTO roles VALUES (default, 'Patient');
+INSERT INTO roles VALUES (default, 'Agency');
