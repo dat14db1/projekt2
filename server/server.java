@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
-    private int personID = 3;
+    private int personID = 4;
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -63,6 +63,7 @@ public class server implements Runnable {
 
             String clientMsg = null;
             StringBuilder answer_message = new StringBuilder();
+            Record temp = null;
             while ((clientMsg = in.readLine()) != null) {
                 //Handle request
                 //Put words in array
@@ -79,6 +80,56 @@ public class server implements Runnable {
                         answer_message.append(nolines + "\n");
                         for(Record rec : records){
                             answer_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
+                        }
+                        break;
+                    case "read":
+                        //Make sure there is a second input arg, that is an integer
+                        if (words.length < 2) {
+                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            break;
+                        }
+                        try {
+                            if (words.length >= 2) {
+                                Integer.parseInt(words[1]);
+                            }
+                        } catch (Exception e){
+                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            break;
+                        }
+                        System.out.println("read called on " + words[1]);
+                        temp = sqlTest.readRecord(Integer.parseInt(words[1]), personID);
+                        if (temp == null) {
+                            answer_message.append("2\nUnable to fetch record.\n");
+                        } else {
+                            nolines = 6 + temp.text.split("\n").length; 
+                            answer_message.append(nolines + "\nRecordID: " + temp.id + "\n");
+                            answer_message.append("Patient: " + temp.patientName + "\n");
+                            answer_message.append("Doctor: " + temp.doctorName + "\n");
+                            answer_message.append("Nurse: " + temp.nurseName + "\n");
+                            answer_message.append("Division: " + temp.divisionName + "\n");
+                            answer_message.append(temp.text + "\n");
+                        }
+                        break;
+                    case "delete":
+                        //Make sure there is a second input arg, that is an integer
+                        if (words.length < 2) {
+                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            break;
+                        }
+                        try {
+                            if (words.length >= 2) {
+                                Integer.parseInt(words[1]);
+                            }
+                        } catch (Exception e){
+                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            break;
+                        }
+                        System.out.println("delete called on " + words[1]);
+                        temp = sqlTest.deleteRecord(Integer.parseInt(words[1]), personID);
+                        if (temp == null) {
+                            answer_message.append("2\nUnable to fetch record.\n");
+                        } else {
+                            answer_message.append("2\nDeleted record with id " + temp.id + "\n");
                         }
                         break;
                     default:
