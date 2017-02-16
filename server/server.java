@@ -208,9 +208,9 @@ public class server implements Runnable {
                           answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
                           break;
                         }
-                        int reportNO;
+                        int recordID;
                         try {
-                          reportNO = Integer.parseInt(words[1]);
+                          recordID = Integer.parseInt(words[1]);
                         } catch (Exception e){
                             answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
                             break;
