@@ -47,7 +47,7 @@ public class server implements Runnable {
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
 
 // connected, write to client
-            SQLTest sqlTest = new SQLTest(); 
+            SQLTest sqlTest = new SQLTest();
             ArrayList<Record> records = sqlTest.listRecords(personID);
             int nolines = records.size() + 4;
             StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome, " + subject + "! \n \n");
@@ -57,7 +57,7 @@ public class server implements Runnable {
             for(Record rec : records){
                 welcome_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
             }
-            
+
             // Record temp = sqlTest.readRecord(2, 5);
             // System.out.println("res: " + temp.text);
 
@@ -112,7 +112,7 @@ public class server implements Runnable {
                         if (temp == null) {
                             answer_message.append("2\nUnable to fetch record.\n");
                         } else {
-                            nolines = 6 + temp.text.split("\n").length; 
+                            nolines = 6 + temp.text.split("\n").length;
                             answer_message.append(nolines + "\nRecordID: " + temp.id + "\n");
                             answer_message.append("Patient: " + temp.patientName + "\n");
                             answer_message.append("Doctor: " + temp.doctorName + "\n");
@@ -142,7 +142,7 @@ public class server implements Runnable {
                         }
                         break;
                     case "create":
-                        int reqnurse, reqpatient, reqdivision; 
+                        int reqnurse, reqpatient, reqdivision;
                         if (words.length < 5) {
                             answer_message.append(2 + "\nInvalid. Create needs inputs <nurse-id> <patient-id> <divisions-id> <journaltext>.\n");
                             break;
@@ -158,11 +158,11 @@ public class server implements Runnable {
                         //check if valid nurse & patient
                         if (!(checkRole(reqnurse, NURSE, sqlTest))) {
                             answer_message.append(2 + "\nInvalid, nonexisting nurse, nurseID: " + reqnurse + "\n");
-                            break;                           
-                        }  
+                            break;
+                        }
                         if (!(checkRole(reqpatient, PATIENT, sqlTest))) {
                             answer_message.append(2 + "\nInvalid, nonexisting patient, patientID: " + reqpatient + "\n");
-                            break;   
+                            break;
                         }
                         if (!(checkDivExist(reqdivision, sqlTest))) {
                             answer_message.append(2 + "\nInvalid, nonexisting division, divID: " + reqdivision + "\n");
@@ -203,6 +203,28 @@ public class server implements Runnable {
                             answer_message.append(2 + "\nPatient " + name + " created with ID " + id + ".\n");
                         }
                         break;
+                    case "update": // update, reportNO, text
+                        if (words.length < 3) {
+                          answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
+                          break;
+                        }
+                        int reportNO;
+                        try {
+                          reportNO = Integer.parseInt(words[1]);
+                        } catch (Exception e){
+                            answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
+                            break;
+                        }
+                        text = new StringBuilder();
+                        for (int i = 2; i < words.length; i++) {
+                            text.append(words[i] + " ");
+                        }
+                        temp = sqlTest.updateRecord(recordID, personID, text.toString());
+                        if (temp == null) {
+
+                        }
+                        break;
+
                     default:
                         answer_message.append(2 + "\nInvalid operation.\n");
                         System.out.println("client msg: " + clientMsg);
@@ -230,8 +252,8 @@ public class server implements Runnable {
 
     private void newListener() { (new Thread(this)).start(); } // calls run()
 
-    private boolean checkRole(int personID, int role, SQLTest sqlTest){    
-        return sqlTest.checkPersonRole(personID, role); 
+    private boolean checkRole(int personID, int role, SQLTest sqlTest){
+        return sqlTest.checkPersonRole(personID, role);
     }
 
     private boolean checkDivExist(int division, SQLTest sqlTest) {
@@ -264,7 +286,7 @@ public class server implements Runnable {
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
                 KeyStore ks = KeyStore.getInstance("JKS");
-				KeyStore ts = KeyStore.getInstance("JKS");
+				        KeyStore ts = KeyStore.getInstance("JKS");
                 char[] password = "password".toCharArray();
 
                 ks.load(new FileInputStream("serverkeystore"), password);  // keystore password (storepass)

@@ -85,7 +85,7 @@ public class client {
            
 
 
-			for (;;) {
+       	for (;;) {
                 try {
                     String stemp = in.readLine(); 
                     int nolines = Integer.parseInt(stemp);
@@ -99,8 +99,8 @@ public class client {
                 System.out.print(">");
                 msg = read.readLine();
                 if (msg.equalsIgnoreCase("quit")) {
-				    break;
-				}
+		    break;
+		}
                 System.out.print("sending '" + msg + "' to server...");
                 out.println(msg);
                 out.flush();
@@ -109,8 +109,8 @@ public class client {
                 //System.out.println("received '" + in.readLine() + "' from server\n");
             }
             in.close();
-			out.close();
-			read.close();
+	out.close();
+		read.close();
             socket.close();
         } catch (Exception e) {
             e.printStackTrace();
