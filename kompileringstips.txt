@@ -1,0 +1,12 @@
+Kompilera servern:
+javac -cp ".:./jars/mysql-connector-java-5.1.40-bin.jar" Record.java SQLTest.java LoadDriver.java server.java
+
+Köra servern:
+java -cp ".:./jars/mysql-connector-java-5.1.40-bin.jar" server 9876
+
+Kompilera klienten:
+javac client.java
+
+Köra klienten:
+java client localhost 9876
+
