@@ -1,7 +1,3 @@
 Beginning of log file.
-Read attempt of record with id 3 by user with id 1 at 2017-02-16 14:29:09.
-Update attempt of record with id 3 by user with id 1 at 2017-02-16 14:29:38.
-Create attempt by user with id 1 at 2017-02-16 14:30:45.
-Create attempt of record with id 0 by user with id 1 at 2017-02-16 14:30:45.
-Read attempt of record with id 1 by user with id 6 at 2017-02-16 14:30:45.
-Delete attempt of record with id 6 by user with id 1 at 2017-02-16 14:30:53.
+Read attempt of record with id 3 by user with id 1 at 2017-02-16 15:29:16.
+Update attempt of record with id 6 by user with id 1 at 2017-02-16 15:29:37.

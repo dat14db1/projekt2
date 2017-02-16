@@ -148,7 +148,7 @@ public class SQLTest{
             }
 
             for (int id : ids) {
-                list.add(new Record(id, statement, resultSet));
+                list.add(new Record(id, conn, resultSet));
             }
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -173,10 +173,10 @@ public class SQLTest{
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to read the record
-                if (requestedRecord.checkReadPermission(personID, statement, resultSet)) {
+                if (requestedRecord.checkReadPermission(personID, conn, resultSet)) {
                     returnRecord = requestedRecord;
                     System.out.println("Read Access granted.");
                 } else {
@@ -206,12 +206,12 @@ public class SQLTest{
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to delete the record
-                if (requestedRecord.checkDeletePermission(personID, statement, resultSet)) {
+                if (requestedRecord.checkDeletePermission(personID, conn, resultSet)) {
                     returnRecord = requestedRecord;
-                    requestedRecord.delete(recordID, statement, resultSet);
+                    requestedRecord.delete(recordID, conn, resultSet);
                     System.out.println("Delete Access granted.");
                 } else {
                     System.out.println("Delete Access denied.");
@@ -239,13 +239,13 @@ public class SQLTest{
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to update the record
-                if (requestedRecord.checkUpdatePermission(personID, statement, resultSet)) {
-                    requestedRecord.update(recordID, newText, statement, resultSet);
+                if (requestedRecord.checkUpdatePermission(personID, conn, resultSet)) {
+                    requestedRecord.update(recordID, newText, conn, resultSet);
                     //Value to return must be the updated one.
-                    returnRecord = new Record(recordID, statement, resultSet);
+                    returnRecord = new Record(recordID, conn, resultSet);
                     System.out.println("Update Access granted.");
                 } else {
                     System.out.println("Update Access denied.");
@@ -264,9 +264,9 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(4, 0, personID);//4 indicates update attempt
         //Check if person is a doctor. The method is static so no object is needed.
-        if (Record.checkCreatePermission(personID, statement, resultSet)) {
+        if (Record.checkCreatePermission(personID, conn, resultSet)) {
             //Create here.
-            int newID = Record.create(personID, nurseID, patientID, divisionID, text, statement, resultSet);
+            int newID = Record.create(personID, nurseID, patientID, divisionID, text, conn, resultSet);
             logAccessAttempt(5, 0, personID);//5 indicates successful update
             returnRecord = readRecord(personID, newID);
             System.out.println("Create access granted.");
@@ -278,19 +278,19 @@ public class SQLTest{
 
     public int createPerson(int creatorID, String newpersonName, int newpersonRole, int newpersonDivision){
         int id = -1;
-        if (Record.checkCreatePermission(creatorID, statement, resultSet)) {
-            id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, statement, resultSet);
+        if (Record.checkCreatePermission(creatorID, conn, resultSet)) {
+            id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, conn, resultSet);
         }
         return id;
     }
 
     public static boolean checkPersonRole(int personID, int reqRole){
-        boolean bool = Record.checkPersonRole(personID, statement, resultSet) == reqRole ? true : false ;
+        boolean bool = Record.checkPersonRole(personID, conn, resultSet) == reqRole ? true : false ;
         return bool;
     }
 
     public static boolean checkDivExist(int division) {
-        return Record.checkDivisionExists(division, statement, resultSet);
+        return Record.checkDivisionExists(division, conn, resultSet);
     }
 
     /*Writes all access attempts to a text file.*/
