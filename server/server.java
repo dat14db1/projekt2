@@ -68,7 +68,7 @@ public class server implements Runnable {
                 //Handle request
                 //Put words in array
 
-                String[] words = clientMsg.split("[\\n\\s]");//splits on everythin but alphanumerical characters
+                String[] words = clientMsg.split("[\\n\\s]");//splits on everything but alphanumerical characters
                 System.out.println(words[0]);
                 answer_message.setLength(0);
                 switch (words[0]) {
@@ -113,7 +113,7 @@ public class server implements Runnable {
                     case "delete":
                         //Make sure there is a second input arg, that is an integer
                         if (words.length < 2) {
-                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Delete needs record id as input.\n");
                             break;
                         }
                         try {
@@ -121,7 +121,7 @@ public class server implements Runnable {
                                 Integer.parseInt(words[1]);
                             }
                         } catch (Exception e){
-                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Delete needs record id as input.\n");
                             break;
                         }
                         System.out.println("delete called on " + words[1]);
