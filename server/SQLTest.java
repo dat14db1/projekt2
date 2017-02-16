@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.io.*;
@@ -14,6 +15,8 @@ public class SQLTest{
     static Statement statement = null;
     static ResultSet resultSet = null;
     static String dbName = LoadDriver.dbName;
+    private static PreparedStatement preparedStatement = null;
+
 
     //Variables to handle writing to the audit log text file
     static BufferedWriter writer = null;
@@ -95,27 +98,45 @@ public class SQLTest{
         int personsDivisionID = 0;
         try {
             //Check if person exists in db.
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = ?");
+            preparedStatement.setInt(1, personID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 //Get persons role and division
-                resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
+                preparedStatement = conn.prepareStatement("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = ?");
+                preparedStatement.setInt(1, personID);
+                resultSet = preparedStatement.executeQuery();
+                //resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
                 resultSet.next();
                 roleID = resultSet.getInt("role_id");
                 personsDivisionID = resultSet.getInt("division_id");
             }
             switch (roleID) {
                 case 1://Doctor - May read if the doctor id or division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE doctor_id = ? or division_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    preparedStatement.setInt(2, personsDivisionID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 2://Nurse - May read if the nurse id or the division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE nurse_id = ? or division_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    preparedStatement.setInt(2, personsDivisionID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 3://Patient - May read if the patient id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE patient_id = " + personID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE patient_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE patient_id = " + personID);
                     break;
                 case 4://Government agency - May read all records.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records");
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records");
+                    resultSet = preparedStatement.executeQuery();
                     break;
             }
             //Iterate through resultset and place in arraylist
@@ -127,7 +148,7 @@ public class SQLTest{
             }
 
             for (int id : ids) {
-                list.add(new Record(id, statement, resultSet));
+                list.add(new Record(id, conn, resultSet));
             }
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -144,15 +165,18 @@ public class SQLTest{
         logAccessAttempt(1, recordID, personID);//1 indicates read attempt
         try {
             //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to read the record
-                if (requestedRecord.checkReadPermission(personID, statement, resultSet)) {
+                if (requestedRecord.checkReadPermission(personID, conn, resultSet)) {
                     returnRecord = requestedRecord;
                     System.out.println("Read Access granted.");
                 } else {
@@ -173,18 +197,21 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(2, recordID, personID);//2 indicates delete attempt
         try {
-        //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            //Use COUNT(*) to check if the record exists
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to delete the record
-                if (requestedRecord.checkDeletePermission(personID, statement, resultSet)) {
+                if (requestedRecord.checkDeletePermission(personID, conn, resultSet)) {
                     returnRecord = requestedRecord;
-                    requestedRecord.delete(recordID, statement, resultSet);
+                    requestedRecord.delete(recordID, conn, resultSet);
                     System.out.println("Delete Access granted.");
                 } else {
                     System.out.println("Delete Access denied.");
@@ -203,19 +230,22 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(3, recordID, personID);//3 indicates update attempt
         try {
-        //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            //Use COUNT(*) to check if the record exists
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
                 //Fetch record from db and place it in an object
-                Record requestedRecord = new Record(recordID, statement, resultSet);
+                Record requestedRecord = new Record(recordID, conn, resultSet);
 
                 //Check if the user has the right to update the record
-                if (requestedRecord.checkUpdatePermission(personID, statement, resultSet)) {
-                    requestedRecord.update(recordID, newText, statement, resultSet);
+                if (requestedRecord.checkUpdatePermission(personID, conn, resultSet)) {
+                    requestedRecord.update(recordID, newText, conn, resultSet);
                     //Value to return must be the updated one.
-                    returnRecord = new Record(recordID, statement, resultSet);
+                    returnRecord = new Record(recordID, conn, resultSet);
                     System.out.println("Update Access granted.");
                 } else {
                     System.out.println("Update Access denied.");
@@ -234,9 +264,9 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(4, 0, personID);//4 indicates update attempt
         //Check if person is a doctor. The method is static so no object is needed.
-        if (Record.checkCreatePermission(personID, statement, resultSet)) {
+        if (Record.checkCreatePermission(personID, conn, resultSet)) {
             //Create here.
-            int newID = Record.create(personID, nurseID, patientID, divisionID, text, statement, resultSet);
+            int newID = Record.create(personID, nurseID, patientID, divisionID, text, conn, resultSet);
             logAccessAttempt(5, 0, personID);//5 indicates successful update
             returnRecord = readRecord(personID, newID);
             System.out.println("Create access granted.");
@@ -248,19 +278,19 @@ public class SQLTest{
 
     public int createPerson(int creatorID, String newpersonName, int newpersonRole, int newpersonDivision){
         int id = -1;
-        if (Record.checkCreatePermission(creatorID, statement, resultSet)) {
-            id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, statement, resultSet);
+        if (Record.checkCreatePermission(creatorID, conn, resultSet)) {
+            id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, conn, resultSet);
         }
         return id;
     }
 
     public static boolean checkPersonRole(int personID, int reqRole){
-        boolean bool = Record.checkPersonRole(personID, statement, resultSet) == reqRole ? true : false ;
+        boolean bool = Record.checkPersonRole(personID, conn, resultSet) == reqRole ? true : false ;
         return bool;
     }
 
     public static boolean checkDivExist(int division) {
-        return Record.checkDivisionExists(division, statement, resultSet);
+        return Record.checkDivisionExists(division, conn, resultSet);
     }
 
     /*Writes all access attempts to a text file.*/
