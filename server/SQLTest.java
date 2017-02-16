@@ -38,7 +38,7 @@ public class SQLTest{
             //deleteRecord(2, 4);
             //updateRecord(3, 1, "Huvudvärk");
             createRecord(2, 2, 3, 2, "Ont i höger stortå.");
-            
+
             ArrayList<Record> list = listRecords(3);
             for (Record r : list) {
                 System.out.println("record: " + r.text);
@@ -67,13 +67,13 @@ public class SQLTest{
         LoadDriver ld = new LoadDriver();
         try {
             conn = ld.conn;
-            if (conn == null) System.out.println("Conn är null" ); 
+            if (conn == null) System.out.println("Conn är null" );
             statement = conn.createStatement();
             //readRecord(2, 5);
             //deleteRecord(2, 4);
             //updateRecord(3, 1, "Huvudvärk");
             //createRecord(2, 2, 3, 2, "Ont i höger stortå.");
-            
+
             /*
             ArrayList<Record> list = listRecords(3);
             for (Record r : list) {
@@ -255,7 +255,7 @@ public class SQLTest{
     }
 
     public static boolean checkPersonRole(int personID, int reqRole){
-        boolean bool = Record.checkPersonRole(personID, statement, resultSet) == reqRole ? true : false ;  
+        boolean bool = Record.checkPersonRole(personID, statement, resultSet) == reqRole ? true : false ;
         return bool;
     }
 
@@ -279,7 +279,7 @@ public class SQLTest{
                 break;
             case 5://New record successfullt created
                 operationName = "Create";
-                break; 
+                break;
             default:
                 operationName = "Unknown operation";
                 break;

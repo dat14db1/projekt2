@@ -50,6 +50,7 @@ public class server implements Runnable {
             SQLTest sqlTest = new SQLTest();
             ArrayList<Record> records = sqlTest.listRecords(personID);
             int nolines = records.size() + 4;
+            
             StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome, " + subject + "! \n \n");
 
             welcome_message.append("You have permission to read the following patient records: \n");
@@ -205,12 +206,12 @@ public class server implements Runnable {
                         break;
                     case "update": // update, reportNO, text
                         if (words.length < 3) {
-                          answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
-                          break;
+                            answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
+                            break;
                         }
                         int recordID;
                         try {
-                          recordID = Integer.parseInt(words[1]);
+                            recordID = Integer.parseInt(words[1]);
                         } catch (Exception e){
                             answer_message.append(2 + "\nInvalid. Update needs inputs <int reportNO> <newText>\n");
                             break;
@@ -221,10 +222,10 @@ public class server implements Runnable {
                         }
                         temp = sqlTest.updateRecord(recordID, personID, text.toString());
                         if (temp == null) {
-
+                            answer_message.append(2 + "\nUpdate Permission denied\n");
+                            break;
                         }
                         break;
-
                     default:
                         answer_message.append(2 + "\nInvalid operation.\n");
                         System.out.println("client msg: " + clientMsg);
