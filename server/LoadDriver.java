@@ -12,6 +12,10 @@ public class LoadDriver {
 	public Statement statement;
 	public ResultSet resultSet;
 	public Connection conn;
+	public String serverAddress = "sql11.freemysqlhosting.net";
+   	public static String dbName = "sql11159176";
+   	public String dbUser = "sql11159176";
+   	public String dbPassword = "gk44qK7qXT";
     public LoadDriver() {
         try {
             // The newInstance() call is a work around for some
@@ -26,8 +30,8 @@ public class LoadDriver {
    		conn = null;
 		try {
 		    conn =
-		       DriverManager.getConnection("jdbc:mysql://localhost/hospital_db?" +
-		                                   "user=hospital&password=password");
+		       DriverManager.getConnection("jdbc:mysql://" + serverAddress + "/" + dbName + "?" +
+		                                   "user=" + dbUser + "&password=" + dbPassword);
 
 		    // Do something with the Connection
 

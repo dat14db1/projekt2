@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
-    private int personID = -1;
+    private int personID = 1;
     private int NURSE = 2;
     private int PATIENT = 3;
 

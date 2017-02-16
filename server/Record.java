@@ -7,6 +7,7 @@ import java.util.Date;
 import java.io.*;
 
 public class Record {
+	private static String dbName = LoadDriver.dbName;
 	public int id;
 	public int patientID;
 	public int doctorID;
@@ -22,7 +23,7 @@ public class Record {
 		this.id = id;
 		try {
 			//Fetch data from db
-			resultSet = statement.executeQuery("SELECT * FROM hospital_db.records WHERE records.id = " + id);
+			resultSet = statement.executeQuery("SELECT * FROM " + dbName + ".records WHERE records.id = " + id);
 			resultSet.next();
 			//Place data in object fields
 			patientID = resultSet.getInt("patient_id");
@@ -32,22 +33,22 @@ public class Record {
 			text = resultSet.getString("text");
 
 			//Fetch doctor name
-			resultSet = statement.executeQuery("SELECT name FROM hospital_db.persons WHERE id = " + doctorID);
+			resultSet = statement.executeQuery("SELECT name FROM " + dbName + ".persons WHERE id = " + doctorID);
 			resultSet.next();
 			doctorName = resultSet.getString(1);
 
 			//Fetch patient name
-			resultSet = statement.executeQuery("SELECT name FROM hospital_db.persons WHERE id = " + patientID);
+			resultSet = statement.executeQuery("SELECT name FROM " + dbName + ".persons WHERE id = " + patientID);
 			resultSet.next();
 			patientName = resultSet.getString(1);
 
 			//Fetch nurse name
-			resultSet = statement.executeQuery("SELECT name FROM hospital_db.persons WHERE id = " + nurseID);
+			resultSet = statement.executeQuery("SELECT name FROM " + dbName + ".persons WHERE id = " + nurseID);
 			resultSet.next();
 			nurseName = resultSet.getString(1);
 
 			//Fetch division name
-			resultSet = statement.executeQuery("SELECT name FROM hospital_db.divisions WHERE id = " + divisionID);
+			resultSet = statement.executeQuery("SELECT name FROM " + dbName + ".divisions WHERE id = " + divisionID);
 			resultSet.next();
 			divisionName = resultSet.getString(1);
 		} catch(SQLException ex) {
@@ -62,11 +63,11 @@ public class Record {
 		int personsDivisionID = 0;
 		try {
 			//Check if person exists in db.
-			resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.persons WHERE id = " + personID);
+			resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
 			resultSet.next();
 			if (resultSet.getInt(1) != 0) {
 				//Get persons role and division
-				resultSet = statement.executeQuery("SELECT role_id, division_id FROM hospital_db.persons WHERE id = " + personID);
+				resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
 				resultSet.next();
 				roleID = resultSet.getInt("role_id");
 				personsDivisionID = resultSet.getInt("division_id");
@@ -104,7 +105,7 @@ public class Record {
 	// returns roleID of person with personID, or -1 if person does not exist 
     public static int checkPersonRole(int personID, Statement statement, ResultSet resultSet){
         try { 
-        	resultSet = statement.executeQuery("SELECT role_id FROM hospital_db.persons WHERE id = " + personID);
+        	resultSet = statement.executeQuery("SELECT role_id FROM " + dbName + ".persons WHERE id = " + personID);
         	resultSet.next();
         	return resultSet.getInt(1);
         } catch (SQLException ex) {
@@ -118,7 +119,7 @@ public class Record {
     public static boolean checkDivisionExists(int divisionID, Statement statement, ResultSet resultSet) {
     	boolean exists = false; 
     	try {
-    		resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.divisions WHERE id = " + divisionID);
+    		resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".divisions WHERE id = " + divisionID);
     		resultSet.next();
     		exists = (resultSet.getInt(1) == 0) ? false : true;
     	}
@@ -136,11 +137,11 @@ public class Record {
 		int roleID = 0; //IDs can never be zero in db.
 		try {
 			//Check if person exists in db.
-			resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.persons WHERE id = " + personID);
+			resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
 			resultSet.next();
 			if (resultSet.getInt(1) != 0) {
 				//Get persons role
-				resultSet = statement.executeQuery("SELECT role_id FROM hospital_db.persons WHERE id = " + personID);
+				resultSet = statement.executeQuery("SELECT role_id FROM " + dbName + ".persons WHERE id = " + personID);
 				resultSet.next();
 				roleID = resultSet.getInt("role_id");
 			}
@@ -162,11 +163,11 @@ public class Record {
 		int roleID = 0; //IDs can never be zero in db.
 		try {
 			//Check if person exists in db.
-			resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.persons WHERE id = " + personID);
+			resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
 			resultSet.next();
 			if (resultSet.getInt(1) != 0) {
 				//Get persons role
-				resultSet = statement.executeQuery("SELECT role_id FROM hospital_db.persons WHERE id = " + personID);
+				resultSet = statement.executeQuery("SELECT role_id FROM " + dbName + ".persons WHERE id = " + personID);
 				resultSet.next();
 				roleID = resultSet.getInt("role_id");
 			}
@@ -197,11 +198,11 @@ public class Record {
         int roleID = 0; //IDs can never be zero in db.
         try {
             //Check if person exists in db.
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.persons WHERE id = " + personID);
+            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 //Get persons role
-                resultSet = statement.executeQuery("SELECT role_id FROM hospital_db.persons WHERE id = " + personID);
+                resultSet = statement.executeQuery("SELECT role_id FROM " + dbName + ".persons WHERE id = " + personID);
                 resultSet.next();
                 roleID = resultSet.getInt("role_id");
             }
@@ -219,11 +220,11 @@ public class Record {
     	int newID = 0;
         try {
             //executeUpdate() is used when the table is altered by the statement.
-            statement.executeUpdate("INSERT INTO hospital_db.records VALUES(default, '" + 
+            statement.executeUpdate("INSERT INTO " + dbName + ".records VALUES(default, '" + 
                 text + "', " + patientID + ", " + personID + ", " + nurseID + ", " +
                 divisionID + ");");
             //Get the ID of the new record.
-            resultSet = statement.executeQuery("SELECT id FROM hospital_db.records ORDER BY id desc LIMIT 1");
+            resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records ORDER BY id desc LIMIT 1");
             resultSet.next();
             newID = resultSet.getInt(1);
         } catch (SQLException ex) {
@@ -237,7 +238,7 @@ public class Record {
 	public void update(int recordID, String newText, Statement statement, ResultSet resultSet) {
 		try {
 			//executeUpdate() is used when the table is altered by the statement.
-			statement.executeUpdate("UPDATE hospital_db.records SET text = '" + newText
+			statement.executeUpdate("UPDATE " + dbName + ".records SET text = '" + newText
 				+ "' WHERE id = " + recordID);
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
@@ -249,7 +250,7 @@ public class Record {
 	public void delete(int recordID, Statement statement, ResultSet resultSet) {
 		try {
 			//executeUpdate() is used when the table is altered by the statement.
-			statement.executeUpdate("DELETE FROM hospital_db.records WHERE id = " + recordID);
+			statement.executeUpdate("DELETE FROM " + dbName + ".records WHERE id = " + recordID);
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
@@ -259,9 +260,9 @@ public class Record {
 	public static int newPerson(String personName, int roleID, int divisionID, Statement statement, ResultSet resultSet){
 		int id = -1;
 		try {
-			statement.executeUpdate("INSERT INTO hospital_db.persons VALUES(default, '" + personName + "', " + roleID + ", " + divisionID + ");");
+			statement.executeUpdate("INSERT INTO " + dbName + ".persons VALUES(default, '" + personName + "', " + roleID + ", " + divisionID + ");");
 			//Check id of new patient.
-			resultSet = statement.executeQuery("SELECT id FROM hospital_db.persons ORDER BY id desc LIMIT 1");
+			resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".persons ORDER BY id desc LIMIT 1");
 			resultSet.next();
 			id = resultSet.getInt(1);
 		} catch (SQLException ex) {

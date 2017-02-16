@@ -13,6 +13,7 @@ public class SQLTest{
     static Connection conn = null;
     static Statement statement = null;
     static ResultSet resultSet = null;
+    static String dbName = LoadDriver.dbName;
 
     //Variables to handle writing to the audit log text file
     static BufferedWriter writer = null;
@@ -94,27 +95,27 @@ public class SQLTest{
         int personsDivisionID = 0;
         try {
             //Check if person exists in db.
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.persons WHERE id = " + personID);
+            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 //Get persons role and division
-                resultSet = statement.executeQuery("SELECT role_id, division_id FROM hospital_db.persons WHERE id = " + personID);
+                resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
                 resultSet.next();
                 roleID = resultSet.getInt("role_id");
                 personsDivisionID = resultSet.getInt("division_id");
             }
             switch (roleID) {
                 case 1://Doctor - May read if the doctor id or division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM hospital_db.records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
+                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 2://Nurse - May read if the nurse id or the division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM hospital_db.records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
+                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 3://Patient - May read if the patient id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM hospital_db.records WHERE patient_id = " + personID);
+                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE patient_id = " + personID);
                     break;
                 case 4://Government agency - May read all records.
-                    resultSet = statement.executeQuery("SELECT id FROM hospital_db.records");
+                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records");
                     break;
             }
             //Iterate through resultset and place in arraylist
@@ -143,7 +144,7 @@ public class SQLTest{
         logAccessAttempt(1, recordID, personID);//1 indicates read attempt
         try {
             //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.records WHERE id = " + recordID);
+            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
@@ -173,7 +174,7 @@ public class SQLTest{
         logAccessAttempt(2, recordID, personID);//2 indicates delete attempt
         try {
         //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.records WHERE id = " + recordID);
+            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
@@ -203,7 +204,7 @@ public class SQLTest{
         logAccessAttempt(3, recordID, personID);//3 indicates update attempt
         try {
         //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.records WHERE id = " + recordID);
+            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
