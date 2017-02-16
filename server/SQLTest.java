@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.io.*;
@@ -14,6 +15,8 @@ public class SQLTest{
     static Statement statement = null;
     static ResultSet resultSet = null;
     static String dbName = LoadDriver.dbName;
+    private static PreparedStatement preparedStatement = null;
+
 
     //Variables to handle writing to the audit log text file
     static BufferedWriter writer = null;
@@ -95,27 +98,45 @@ public class SQLTest{
         int personsDivisionID = 0;
         try {
             //Check if person exists in db.
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = ?");
+            preparedStatement.setInt(1, personID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = " + personID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 //Get persons role and division
-                resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
+                preparedStatement = conn.prepareStatement("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = ?");
+                preparedStatement.setInt(1, personID);
+                resultSet = preparedStatement.executeQuery();
+                //resultSet = statement.executeQuery("SELECT role_id, division_id FROM " + dbName + ".persons WHERE id = " + personID);
                 resultSet.next();
                 roleID = resultSet.getInt("role_id");
                 personsDivisionID = resultSet.getInt("division_id");
             }
             switch (roleID) {
                 case 1://Doctor - May read if the doctor id or division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE doctor_id = ? or division_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    preparedStatement.setInt(2, personsDivisionID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE doctor_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 2://Nurse - May read if the nurse id or the division id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE nurse_id = ? or division_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    preparedStatement.setInt(2, personsDivisionID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE nurse_id = " + personID + " or division_id = " + personsDivisionID);
                     break;
                 case 3://Patient - May read if the patient id matches.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE patient_id = " + personID);
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records WHERE patient_id = ?");
+                    preparedStatement.setInt(1, personID);
+                    resultSet = preparedStatement.executeQuery();
+                    //resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records WHERE patient_id = " + personID);
                     break;
                 case 4://Government agency - May read all records.
-                    resultSet = statement.executeQuery("SELECT id FROM " + dbName + ".records");
+                    preparedStatement = conn.prepareStatement("SELECT id FROM " + dbName + ".records");
+                    resultSet = preparedStatement.executeQuery();
                     break;
             }
             //Iterate through resultset and place in arraylist
@@ -144,7 +165,10 @@ public class SQLTest{
         logAccessAttempt(1, recordID, personID);//1 indicates read attempt
         try {
             //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
@@ -173,8 +197,11 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(2, recordID, personID);//2 indicates delete attempt
         try {
-        //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            //Use COUNT(*) to check if the record exists
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
@@ -203,8 +230,11 @@ public class SQLTest{
         Record returnRecord = null;
         logAccessAttempt(3, recordID, personID);//3 indicates update attempt
         try {
-        //Use COUNT(*) to check if the record exists
-            resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
+            //Use COUNT(*) to check if the record exists
+            preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
+            preparedStatement.setInt(1, recordID);
+            resultSet = preparedStatement.executeQuery();
+            //resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = " + recordID);
             resultSet.next();
             if (resultSet.getInt(1) != 0) {
                 System.out.println("Record found!");
