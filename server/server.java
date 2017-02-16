@@ -14,6 +14,8 @@ public class server implements Runnable {
     private int personID = 1;
     private int NURSE = 2;
     private int PATIENT = 3;
+    private int DOCTOR = 1;
+    private int GOVERNMENT = 4;
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -28,8 +30,8 @@ public class server implements Runnable {
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();
             try {
-                personID = Integer.parseInt(cert.getSubjectDN().getName());
-                System.out.println("ID: " + personID);
+                String setuptemp = cert.getSubjectDN().getName();
+                personID = Integer.parseInt(setuptemp.split("[,=\\s]")[1]);
             } catch (Exception e) {
                 System.out.println("Wrong certificate format.");
             }
@@ -46,22 +48,28 @@ public class server implements Runnable {
             //---Own code ends here---
             System.out.println(numConnectedClients + " concurrent connection(s)\n");
 
-// connected, write to client
+            // Setup and send Welcome message
             SQLTest sqlTest = new SQLTest();
             ArrayList<Record> records = sqlTest.listRecords(personID);
             int nolines = records.size() + 4;
-            
-            StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome, " + subject + "! \n \n");
+            String person_role = null;
+            System.out.println("personID is " + personID);
+            if (sqlTest.checkPersonRole(personID, DOCTOR)) {
+                person_role = "DOCTOR";
+            } else if (sqlTest.checkPersonRole(personID, NURSE)) {
+                person_role = "NURSE";
+            } else if (sqlTest.checkPersonRole(personID, PATIENT)) {
+                person_role = "PATIENT";
+            } else if (sqlTest.checkPersonRole(personID, GOVERNMENT)) {
+                person_role = "GOVERNMENT";
+            }
+            StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome! You are logged in as " + person_role + ". Write 'help' for options \n \n");
 
             welcome_message.append("You have permission to read the following patient records: \n");
 
             for(Record rec : records){
                 welcome_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
             }
-
-            // Record temp = sqlTest.readRecord(2, 5);
-            // System.out.println("res: " + temp.text);
-
 
             PrintWriter out = null;
             BufferedReader in = null;
@@ -97,7 +105,7 @@ public class server implements Runnable {
                     case "read":
                         //Make sure there is a second input arg, that is an integer
                         if (words.length < 2) {
-                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Read needs <record_id> as input.\n");
                             break;
                         }
                         try {
@@ -105,7 +113,7 @@ public class server implements Runnable {
                                 Integer.parseInt(words[1]);
                             }
                         } catch (Exception e){
-                            answer_message.append(2 + "\nInvalid. Read needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Read needs <record_id> as input.\n");
                             break;
                         }
                         System.out.println("read called on " + words[1]);
@@ -125,13 +133,13 @@ public class server implements Runnable {
                     case "delete":
                         //Make sure there is a second input arg, that is an integer
                         if (words.length < 2) {
-                            answer_message.append(2 + "\nInvalid. Delete needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Delete needs <record_id> as input.\n");
                             break;
                         }
                         try {
                             Integer.parseInt(words[1]);
                         } catch (Exception e){
-                            answer_message.append(2 + "\nInvalid. Delete needs record id as input.\n");
+                            answer_message.append(2 + "\nInvalid. Delete needs <record_id> as input.\n");
                             break;
                         }
                         System.out.println("delete called on " + words[1]);
@@ -225,6 +233,10 @@ public class server implements Runnable {
                             answer_message.append(2 + "\nUpdate Permission denied\n");
                             break;
                         }
+                        answer_message.append(2 + "\nUpdate ok!\n");
+                        break;
+                        case "help":
+                            answer_message.append(stateOptions());
                         break;
                     default:
                         answer_message.append(2 + "\nInvalid operation.\n");
@@ -304,5 +316,17 @@ public class server implements Runnable {
             return ServerSocketFactory.getDefault();
         }
         return null;
+    }
+    private static String stateOptions(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(15 + "\n");
+        sb.append("List all records and recordIDs: \nlist \n");
+        sb.append("Read a record, list content: \nread <record_id> \n");
+        sb.append("Delete a record: \ndelete <record_id> \n");
+        sb.append("Create a new record: \ncreate <nurse-id> <patient-id> <divisions-id> <journaltext> \n");
+        sb.append("Add new patient to database: \nnewpatient <division> <name>\n");
+        sb.append("Update an existnig record: \nupdate <report_id> <newText>\n");
+        sb.append("List all options: \nhelp\n");
+        return sb.toString();
     }
 }
