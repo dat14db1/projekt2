@@ -21,46 +21,15 @@ public class SQLTest{
     //Variables to handle writing to the audit log text file
     static BufferedWriter writer = null;
 
-    /*
-	public static void main(String args[]) {
-        //Set up log file.
-        try {
-            writer = new BufferedWriter(new FileWriter("hospital_log.txt"));
-            writer.write("Beginning of log file.\n");
-            writer.close();
-        } catch (IOException ex) {
-            System.out.println("Error when writing to file.");
-        }
-
-        //Connect to db.
-		LoadDriver ld = new LoadDriver();
-        try {
-    		conn = ld.conn;
-    		statement = conn.createStatement();
-            readRecord(2, 5);
-            //deleteRecord(2, 4);
-            //updateRecord(3, 1, "Huvudvärk");
-            createRecord(2, 2, 3, 2, "Ont i höger stortå.");
-
-            ArrayList<Record> list = listRecords(3);
-            for (Record r : list) {
-                System.out.println("record: " + r.text);
-            }
-
-        } catch (SQLException ex) {
-            // handle any errors
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-        }
-	}*/
-
     //Constructor that does setup
     public SQLTest() {
         //Set up log file.
         try {
-            writer = new BufferedWriter(new FileWriter("hospital_log.txt"));
-            writer.write("Beginning of log file.\n");
+            SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date timeNow = new Date();
+            String stringDate = sdfDate.format(timeNow);
+            writer = new BufferedWriter(new FileWriter("hospital_log.txt", true));
+            writer.write("\n----Server started at " + stringDate + "----\n");
             writer.close();
         } catch (IOException ex) {
             System.out.println("Error when writing to file.");
@@ -72,16 +41,6 @@ public class SQLTest{
             conn = ld.conn;
             if (conn == null) System.out.println("Conn är null" );
             statement = conn.createStatement();
-            //readRecord(2, 5);
-            //deleteRecord(2, 4);
-            //updateRecord(3, 1, "Huvudvärk");
-            //createRecord(2, 2, 3, 2, "Ont i höger stortå.");
-
-            /*
-            ArrayList<Record> list = listRecords(3);
-            for (Record r : list) {
-                System.out.println("record: " + r.text);
-            }*/
 
         } catch (SQLException ex) {
             // handle any errors
@@ -96,6 +55,7 @@ public class SQLTest{
         ArrayList<Record> list = new ArrayList<Record>();
         int roleID = 0; //IDs can never be zero in db.
         int personsDivisionID = 0;
+        logAccessAttempt(7, 0, personID);
         try {
             //Check if person exists in db.
             preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".persons WHERE id = ?");
@@ -282,6 +242,7 @@ public class SQLTest{
 
     public int createPerson(int creatorID, String newpersonName, int newpersonRole, int newpersonDivision){
         int id = -1;
+        logAccessAttempt(6, 0, creatorID);
         if (Record.checkCreatePermission(creatorID, conn, resultSet)) {
             id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, conn, resultSet);
         }
@@ -303,16 +264,25 @@ public class SQLTest{
         String operationName = "";
         switch (operation) {
             case 1://Read attempt
-                operationName = "Read";
+                operationName = "Read record";
                 break;
             case 2://Delete attempt
-                operationName = "Delete";
+                operationName = "Delete record";
                 break;
             case 3://Update attempt
-                operationName = "Update";
+                operationName = "Update record";
+                break;
+            case 4:
+                operationName = "Create record attempt";
                 break;
             case 5://New record successfullt created
-                operationName = "Create";
+                operationName = "Create record successful";
+                break;
+            case 6:
+                operationName = "Create patient";
+                break;
+            case 7:
+                operationName = "List records";
                 break;
             default:
                 operationName = "Unknown operation";
@@ -324,11 +294,15 @@ public class SQLTest{
         String stringDate = sdfDate.format(timeNow);
         try {
             writer = new BufferedWriter(new FileWriter("hospital_log.txt", true));//True makes the program append
-            if (operation != 4) {//Read, write, update
+            if (operation == 5) {//Create
+                writer.write(operationName + " attempt by user with id " + personID + " at " + stringDate + ".\n");
+            } else if(operation == 7){
+                writer.write(operationName + " by user with id " + personID + " at " + stringDate + ".\n");
+            } else if(operation == 6){
+                writer.write(operationName + " attempt by user with id " + personID + " at " + stringDate + ".\n");
+            } else {
                 writer.write(operationName + " attempt of record with id " + recordID +
                     " by user with id " + personID + " at " + stringDate + ".\n");
-            } else {//Create
-                writer.write("Create attempt by user with id " + personID + " at " + stringDate + ".\n");
             }
             writer.close();
         } catch (IOException ex) {
