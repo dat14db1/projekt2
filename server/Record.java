@@ -24,6 +24,7 @@ public class Record {
 	public Record(int id, Connection conn, ResultSet resultSet) {
 		this.id = id;
 		try {
+			System.out.println("Inne i konstruktorn");
 			//Fetch data from db
 			preparedStatement = conn.prepareStatement("SELECT * FROM " + dbName + ".records WHERE records.id = ?");
 			preparedStatement.setInt(1, id);
@@ -69,7 +70,7 @@ public class Record {
 			resultSet.next();
 			divisionName = resultSet.getString(1);
 		} catch(SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLException: i konstruktorn" + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
 		}
@@ -194,6 +195,7 @@ public class Record {
 	}
 
 	public boolean checkUpdatePermission(int personID, Connection conn, ResultSet resultSet) {
+		System.out.println("i checkUpdatePermission");
 		boolean updateOk = false;
 		int roleID = 0; //IDs can never be zero in db.
 		try {
@@ -209,11 +211,14 @@ public class Record {
 				preparedStatement.setInt(1, personID);
 				resultSet = preparedStatement.executeQuery();
 				//resultSet = statement.executeQuery("SELECT role_id FROM " + dbName + ".persons WHERE id = " + personID);
-				//resultSet.next();
+				resultSet.next();
 				roleID = resultSet.getInt("role_id");
+				System.out.println("role id: " + roleID);
+			} else {
+				System.out.println("No person found.");
 			}
 		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLException i checkUpdatePermission: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
 		}
@@ -301,7 +306,8 @@ public class Record {
 			//statement.executeUpdate("UPDATE " + dbName + ".records SET text = '" + newText
 			//	+ "' WHERE id = " + recordID);
 		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
+
+			System.out.println("SQLException i update(): " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
 		}

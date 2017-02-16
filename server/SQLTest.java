@@ -229,8 +229,10 @@ public class SQLTest{
     public static Record updateRecord(int recordID, int personID, String newText) {
         Record returnRecord = null;
         logAccessAttempt(3, recordID, personID);//3 indicates update attempt
+        System.out.println("här då ?");
         try {
             //Use COUNT(*) to check if the record exists
+            System.out.println("här");
             preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
             preparedStatement.setInt(1, recordID);
             resultSet = preparedStatement.executeQuery();
@@ -250,9 +252,11 @@ public class SQLTest{
                 } else {
                     System.out.println("Update Access denied.");
                 }
+            } else {
+                System.out.println("getint är noll.");
             }
         } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLException: i denna" + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
