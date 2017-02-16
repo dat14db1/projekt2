@@ -6,10 +6,14 @@ import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
 import java.util.ArrayList;
 
+
+
 public class server implements Runnable {
     private ServerSocket serverSocket = null;
     private static int numConnectedClients = 0;
-    private int personID = 4;
+    private int personID = -1;
+    private int NURSE = 2;
+    private int PATIENT = 3;
 
     public server(ServerSocket ss) throws IOException {
         serverSocket = ss;
@@ -23,6 +27,12 @@ public class server implements Runnable {
             SSLSession session = socket.getSession();
             X509Certificate cert = (X509Certificate)session.getPeerCertificateChain()[0];
             String subject = cert.getSubjectDN().getName();
+            try {
+                personID = Integer.parseInt(cert.getSubjectDN().getName());
+                System.out.println("ID: " + personID);
+            } catch (Exception e) {
+                System.out.println("Wrong certificate format.");
+            }
     	    numConnectedClients++;
             System.out.println("client connected");
             System.out.println("client name (cert subject DN field): " + subject);
@@ -63,6 +73,7 @@ public class server implements Runnable {
 
             String clientMsg = null;
             StringBuilder answer_message = new StringBuilder();
+            StringBuilder text = null; // text for create function
             Record temp = null;
             while ((clientMsg = in.readLine()) != null) {
                 //Handle request
@@ -117,9 +128,7 @@ public class server implements Runnable {
                             break;
                         }
                         try {
-                            if (words.length >= 2) {
-                                Integer.parseInt(words[1]);
-                            }
+                            Integer.parseInt(words[1]);
                         } catch (Exception e){
                             answer_message.append(2 + "\nInvalid. Delete needs record id as input.\n");
                             break;
@@ -127,9 +136,71 @@ public class server implements Runnable {
                         System.out.println("delete called on " + words[1]);
                         temp = sqlTest.deleteRecord(Integer.parseInt(words[1]), personID);
                         if (temp == null) {
-                            answer_message.append("2\nUnable to fetch record.\n");
+                            answer_message.append(2 + "\nUnable to fetch record.\n");
                         } else {
-                            answer_message.append("2\nDeleted record with id " + temp.id + "\n");
+                            answer_message.append(2 + "\nDeleted record with id " + temp.id + "\n");
+                        }
+                        break;
+                    case "create":
+                        int reqnurse, reqpatient, reqdivision; 
+                        if (words.length < 5) {
+                            answer_message.append(2 + "\nInvalid. Create needs inputs <nurse-id> <patient-id> <divisions-id> <journaltext>.\n");
+                            break;
+                        }
+                        try {
+                            reqnurse = Integer.parseInt(words[1]);
+                            reqpatient = Integer.parseInt(words[2]);
+                            reqdivision = Integer.parseInt(words[3]);
+                        } catch (Exception e){
+                            answer_message.append(2 + "\nInvalid. Create needs inputs <nurse-id> <patient-id> <divisions-id> <journaltext>.\n");
+                            break;
+                        }
+                        //check if valid nurse & patient
+                        if (!(checkRole(reqnurse, NURSE, sqlTest))) {
+                            answer_message.append(2 + "\nInvalid, nonexisting nurse, nurseID: " + reqnurse + "\n");
+                            break;                           
+                        }  
+                        if (!(checkRole(reqpatient, PATIENT, sqlTest))) {
+                            answer_message.append(2 + "\nInvalid, nonexisting patient, patientID: " + reqpatient + "\n");
+                            break;   
+                        }
+                        if (!(checkDivExist(reqdivision, sqlTest))) {
+                            answer_message.append(2 + "\nInvalid, nonexisting division, divID: " + reqdivision + "\n");
+                            break;
+                        }
+
+                        text = new StringBuilder();
+                        System.out.printf(2 + "\nCreate called with nurseID %s, patientID %s, divisionID %s, and journaltext start with %s \n", words[1], words[2], words[3], words[4]);
+                        for (int i = 4; i < words.length; i++){
+                            System.out.println(words[i]);
+                            text.append(words[i] + " ");
+                        }
+                        answer_message.append(2 + "\n Create with valid arguments! congrats\n");
+
+                        temp = sqlTest.createRecord(personID, Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]), text.toString());
+                    break;
+                    case "newpatient": // division, name
+                        if (words.length < 3) {
+                            answer_message.append(2 + "\nInvalid. Newpatient needs inputs <division> <name>\n");
+                            break;
+                        }
+                        int divisionID;
+                        try {
+                            divisionID = Integer.parseInt(words[1]);
+                        } catch (Exception e){
+                            answer_message.append(2 + "\nInvalid. Newpatient needs inputs <division> <name>\n");
+                            break;
+                        }
+                        text = new StringBuilder();
+                        for(int i = 2; i <words.length; i++){
+                            text.append(words[i] + " ");
+                        }
+                        String name = text.toString();
+                        int id = sqlTest.createPerson(personID, name, PATIENT, divisionID);
+                        if (id == -1) {
+                            answer_message.append(2 + "\nCreate permission denied or something.\n");
+                        } else {
+                            answer_message.append(2 + "\nPatient " + name + " created with ID " + id + ".\n");
                         }
                         break;
                     default:
@@ -158,6 +229,14 @@ public class server implements Runnable {
     }
 
     private void newListener() { (new Thread(this)).start(); } // calls run()
+
+    private boolean checkRole(int personID, int role, SQLTest sqlTest){    
+        return sqlTest.checkPersonRole(personID, role); 
+    }
+
+    private boolean checkDivExist(int division, SQLTest sqlTest) {
+        return sqlTest.checkDivExist(division);
+    }
 
     public static void main(String args[]) {
         System.out.println("\nServer Started\n");

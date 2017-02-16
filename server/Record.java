@@ -101,6 +101,36 @@ public class Record {
 		return readOk;
 	}
 
+	// returns roleID of person with personID, or -1 if person does not exist 
+    public static int checkPersonRole(int personID, Statement statement, ResultSet resultSet){
+        try { 
+        	resultSet = statement.executeQuery("SELECT role_id FROM hospital_db.persons WHERE id = " + personID);
+        	resultSet.next();
+        	return resultSet.getInt(1);
+        } catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return -1;
+    }
+
+    public static boolean checkDivisionExists(int divisionID, Statement statement, ResultSet resultSet) {
+    	boolean exists = false; 
+    	try {
+    		resultSet = statement.executeQuery("SELECT COUNT(*) FROM hospital_db.divisions WHERE id = " + divisionID);
+    		resultSet.next();
+    		exists = (resultSet.getInt(1) == 0) ? false : true;
+    	}
+
+    	catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return exists;
+    }
+
 	public boolean checkDeletePermission(int personID, Statement statement, ResultSet resultSet) {
 		boolean deleteOk = false;
 		int roleID = 0; //IDs can never be zero in db.
@@ -225,5 +255,20 @@ public class Record {
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
 		}
+	}
+	public static int newPerson(String personName, int roleID, int divisionID, Statement statement, ResultSet resultSet){
+		int id = -1;
+		try {
+			statement.executeUpdate("INSERT INTO hospital_db.persons VALUES(default, '" + personName + "', " + roleID + ", " + divisionID + ");");
+			//Check id of new patient.
+			resultSet = statement.executeQuery("SELECT id FROM hospital_db.persons ORDER BY id desc LIMIT 1");
+			resultSet.next();
+			id = resultSet.getInt(1);
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return id;
 	}
 }

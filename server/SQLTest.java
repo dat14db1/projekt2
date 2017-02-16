@@ -245,6 +245,23 @@ public class SQLTest{
         return returnRecord;
     }
 
+    public int createPerson(int creatorID, String newpersonName, int newpersonRole, int newpersonDivision){
+        int id = -1;
+        if (Record.checkCreatePermission(creatorID, statement, resultSet)) {
+            id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, statement, resultSet);
+        }
+        return id;
+    }
+
+    public static boolean checkPersonRole(int personID, int reqRole){
+        boolean bool = Record.checkPersonRole(personID, statement, resultSet) == reqRole ? true : false ;  
+        return bool;
+    }
+
+    public static boolean checkDivExist(int division) {
+        return Record.checkDivisionExists(division, statement, resultSet);
+    }
+
     /*Writes all access attempts to a text file.*/
     private static void logAccessAttempt(int operation, int recordID, int personID) {
         //Write an access attempt to the log file.
