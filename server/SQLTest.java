@@ -238,7 +238,7 @@ public class SQLTest{
 
     public int createPerson(int creatorID, String newpersonName, int newpersonRole, int newpersonDivision){
         int id = -1;
-        logAccessAttempt(6, 0, personID);
+        logAccessAttempt(6, 0, creatorID);
         if (Record.checkCreatePermission(creatorID, conn, resultSet)) {
             id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, conn, resultSet);
         }
@@ -269,7 +269,8 @@ public class SQLTest{
                 operationName = "Update record";
                 break;
             case 4:
-                operationName = "Create record attempt"
+                operationName = "Create record attempt";
+                break;
             case 5://New record successfullt created
                 operationName = "Create record successful";
                 break;
@@ -289,7 +290,7 @@ public class SQLTest{
         String stringDate = sdfDate.format(timeNow);
         try {
             writer = new BufferedWriter(new FileWriter("hospital_log.txt", true));//True makes the program append
-            if (operation = 5) {//Create
+            if (operation == 5) {//Create
                 writer.write(operationName + " attempt by user with id " + personID + " at " + stringDate + ".\n");
             } else if(operation == 7){
                 writer.write(operationName + " by user with id " + personID + " at " + stringDate + ".\n");
