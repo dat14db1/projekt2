@@ -68,7 +68,7 @@ public class server implements Runnable {
             welcome_message.append("You have permission to read the following patient records: \n");
 
             for(Record rec : records){
-                welcome_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
+                welcome_message.append(rec.id + ": " + rec.patientName + "\n");
             }
 
             PrintWriter out = null;
@@ -93,13 +93,13 @@ public class server implements Runnable {
                 answer_message.setLength(0);
                 switch (words[0]) {
                     case "list":
-                        System.out.println("list called.");
+                        //System.out.println("list called.");
                         records.clear();
                         records = sqlTest.listRecords(personID);
                         nolines = records.size() + 1;
                         answer_message.append(nolines + "\n");
                         for(Record rec : records){
-                            answer_message.append(rec.id + " " + rec.text.substring(0, 3) + "... \n");
+                            answer_message.append(rec.id + ": " + rec.patientName + "\n");
                         }
                         break;
                     case "read":
@@ -139,13 +139,13 @@ public class server implements Runnable {
                         try {
                             Integer.parseInt(words[1]);
                         } catch (Exception e){
-                            answer_message.append(2 + "\nInvalid. Delete needs <record_id> as input.\n");
+                            answer_message.append(2 + "\nInvalid. Delete needs <record id> as input.\n");
                             break;
                         }
                         System.out.println("delete called on " + words[1]);
                         temp = sqlTest.deleteRecord(Integer.parseInt(words[1]), personID);
                         if (temp == null) {
-                            answer_message.append(2 + "\nUnable to fetch record.\n");
+                            answer_message.append(2 + "\nUnable to delete record.\n");
                         } else {
                             answer_message.append(2 + "\nDeleted record with id " + temp.id + "\n");
                         }
@@ -178,13 +178,14 @@ public class server implements Runnable {
                             break;
                         }
 
-                        text = new StringBuilder();
+                        //text = new StringBuilder();
                         System.out.printf(2 + "\nCreate called with nurseID %s, patientID %s, divisionID %s, and journaltext start with %s \n", words[1], words[2], words[3], words[4]);
+                        /*
                         for (int i = 4; i < words.length; i++){
                             System.out.println(words[i]);
                             text.append(words[i] + " ");
-                        }
-                        answer_message.append(2 + "\n Create with valid arguments! congrats\n");
+                        }*/
+                        answer_message.append(2 + "\nCreate with valid arguments. New record created.\n");
 
                         temp = sqlTest.createRecord(personID, Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]), text.toString());
                     break;
@@ -233,7 +234,7 @@ public class server implements Runnable {
                             answer_message.append(2 + "\nUpdate Permission denied\n");
                             break;
                         }
-                        answer_message.append(2 + "\nUpdate ok!\n");
+                        answer_message.append(2 + "\nRecord successfully updated\n");
                         break;
                         case "help":
                             answer_message.append(stateOptions());
@@ -321,11 +322,11 @@ public class server implements Runnable {
         StringBuilder sb = new StringBuilder();
         sb.append(15 + "\n");
         sb.append("List all records and recordIDs: \nlist \n");
-        sb.append("Read a record, list content: \nread <record_id> \n");
-        sb.append("Delete a record: \ndelete <record_id> \n");
-        sb.append("Create a new record: \ncreate <nurse-id> <patient-id> <divisions-id> <journaltext> \n");
-        sb.append("Add new patient to database: \nnewpatient <division> <name>\n");
-        sb.append("Update an existnig record: \nupdate <report_id> <newText>\n");
+        sb.append("Read a record, list content: \nread <record id> \n");
+        sb.append("Delete a record: \ndelete <record id> \n");
+        sb.append("Create a new record: \ncreate <nurse id> <patient id> <division id> <record text> \n");
+        sb.append("Add new patient to database: \nnewpatient <division id> <name>\n");
+        sb.append("Update an existnig record: \nupdate <record id> <new record text>\n");
         sb.append("List all options: \nhelp\n");
         return sb.toString();
     }

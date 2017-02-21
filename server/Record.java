@@ -24,7 +24,6 @@ public class Record {
 	public Record(int id, Connection conn, ResultSet resultSet) {
 		this.id = id;
 		try {
-			System.out.println("Inne i konstruktorn");
 			//Fetch data from db
 			preparedStatement = conn.prepareStatement("SELECT * FROM " + dbName + ".records WHERE records.id = ?");
 			preparedStatement.setInt(1, id);
@@ -272,15 +271,15 @@ public class Record {
     	int newID = 0;
         try {
             //executeUpdate() is used when the table is altered by the statement.
-        	PreparedStatement prepStat = conn.prepareStatement("INSERT INTO " + dbName + ".records VALUES(default, ?, ?, ?, ?, ?");
+        	PreparedStatement prepStat = conn.prepareStatement("INSERT INTO " + dbName + ".records VALUES(default, ?, ?, ?, ?, ?)");
             //statement.executeUpdate("INSERT INTO " + dbName + ".records VALUES(default, '" + 
             //    text + "', " + patientID + ", " + personID + ", " + nurseID + ", " +
             //    divisionID + ");");
         	prepStat.setString(1, text);
         	prepStat.setInt(2, patientID);
         	prepStat.setInt(3, personID);
-        	prepStat.setInt(2, nurseID);
-        	prepStat.setInt(2, divisionID);
+        	prepStat.setInt(4, nurseID);
+        	prepStat.setInt(5, divisionID);
         	prepStat.executeUpdate();
         	//Get the ID of the new record.
         	prepStat = conn.prepareStatement("SELECT id FROM " + dbName + ".records ORDER BY id desc LIMIT 1");

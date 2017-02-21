@@ -231,9 +231,13 @@ public class SQLTest{
         if (Record.checkCreatePermission(personID, conn, resultSet)) {
             //Create here.
             int newID = Record.create(personID, nurseID, patientID, divisionID, text, conn, resultSet);
-            logAccessAttempt(5, 0, personID);//5 indicates successful update
-            returnRecord = readRecord(personID, newID);
-            System.out.println("Create access granted.");
+            if (newID != 0) {
+                logAccessAttempt(5, 0, personID);//5 indicates successful update
+                returnRecord = readRecord(newID, personID);
+                System.out.println("Create access granted.");
+            } else {
+                System.out.println("Creation of new record failed.");
+            }
         } else {
             System.out.println("Create access denied.");
         }
