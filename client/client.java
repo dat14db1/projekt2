@@ -4,6 +4,7 @@ import javax.net.ssl.*;
 import javax.security.cert.X509Certificate;
 import java.security.KeyStore;
 import java.security.cert.*;
+import java.io.Console;
 
 /*
  * This example shows how to set up a key manager to perform client
@@ -33,10 +34,13 @@ public class client {
             System.exit(-1);
         }
 
+        //Read password from user
+        Console cnsl = System.console();
+        //char[] temppassword = cnsl.readPassword("Password: ");
         try { /* set up a key manager for client authentication */
             SSLSocketFactory factory = null;
             try {
-                char[] password = "password".toCharArray();
+                char[] password = cnsl.readPassword("Password: ");// "password".toCharArray();
                 KeyStore ks = KeyStore.getInstance("JKS");
                 KeyStore ts = KeyStore.getInstance("JKS");
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
@@ -82,12 +86,12 @@ public class client {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String msg;
 
-           
+
 
 
        	for (;;) {
                 try {
-                    String stemp = in.readLine(); 
+                    String stemp = in.readLine();
                     int nolines = Integer.parseInt(stemp);
                     for (int i=0 ; i < nolines ; i++){
                         System.out.println(in.readLine());

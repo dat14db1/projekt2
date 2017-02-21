@@ -182,13 +182,12 @@ public class server implements Runnable {
                             break;
                         }
 
-                        //text = new StringBuilder();
+                        text = new StringBuilder();
                         System.out.printf(2 + "\nCreate called with nurseID %s, patientID %s, divisionID %s, and journaltext start with %s \n", words[1], words[2], words[3], words[4]);
-                        /*
                         for (int i = 4; i < words.length; i++){
                             System.out.println(words[i]);
                             text.append(words[i] + " ");
-                        }*/
+                        }
                         answer_message.append(2 + "\nCreate with valid arguments. New record created.\n");
 
                         temp = sqlTest.createRecord(personID, Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]), text.toString());
@@ -212,7 +211,7 @@ public class server implements Runnable {
                         String name = text.toString();
                         int id = sqlTest.createPerson(personID, name, PATIENT, divisionID);
                         if (id == -1) {
-                            answer_message.append(2 + "\nCreate permission denied or something.\n");
+                            answer_message.append(2 + "\nCreate permission denied.\n");
                         } else {
                             answer_message.append(2 + "\nPatient " + name + " created with ID " + id + ".\n");
                         }
@@ -253,6 +252,20 @@ public class server implements Runnable {
                             nolines = list.size() + 1;
                             answer_message.append(nolines + "\n");
                             for (String s : list) {
+                                answer_message.append(s + "\n");
+                            }
+                        }
+                        break;
+                    case "listdivisions":
+                        //Return a list with all staff and patients together with their id:s.
+                        //Only doctors are allowed to do this operation.
+                        ArrayList<String> divList = sqlTest.listDivisions(personID);
+                        if (divList == null) {//Fetching of list failed.
+                            answer_message.append(2 + "\nError.\n");
+                        } else {
+                            nolines = divList.size() + 1;
+                            answer_message.append(nolines + "\n");
+                            for (String s : divList) {
                                 answer_message.append(s + "\n");
                             }
                         }
@@ -338,15 +351,16 @@ public class server implements Runnable {
     }
     private static String stateOptions(){
         StringBuilder sb = new StringBuilder();
-        sb.append(15 + "\n");
-        sb.append("List all records and recordIDs: \nlist \n");
-        sb.append("Read a record, list content: \nread <record id> \n");
-        sb.append("Delete a record: \ndelete <record id> \n");
-        sb.append("Create a new record: \ncreate <nurse id> <patient id> <division id> <record text> \n");
-        sb.append("Add new patient to database: \nnewpatient <division id> <name>\n");
-        sb.append("Update an existnig record: \nupdate <record id> <new record text>\n");
-        sb.append("List all persons: \nlistpersons\n");
-        sb.append("List all options: \nhelp\n");
+        sb.append(19 + "\n");
+        sb.append("*List all records and recordIDs: \n\tlist \n");
+        sb.append("*Read a record, list content: \n\tread <record id> \n");
+        sb.append("*Delete a record: \n\tdelete <record id> \n");
+        sb.append("*Create a new record: \n\tcreate <nurse id> <patient id> <division id> <record text> \n");
+        sb.append("*Add new patient to database: \n\tnewpatient <division id> <name>\n");
+        sb.append("*Update an existnig record: \n\tupdate <record id> <new record text>\n");
+        sb.append("*List all persons: \n\tlistpersons\n");
+        sb.append("*List all divisions: \n\tlistdivisions\n");
+        sb.append("*List all options: \n\thelp\n");
         return sb.toString();
     }
 }

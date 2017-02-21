@@ -125,7 +125,7 @@ public class Record {
 		return readOk;
 	}
 
-	// returns roleID of person with personID, or -1 if person does not exist 
+	// returns roleID of person with personID, or -1 if person does not exist
     public static int checkPersonRole(int personID, Connection conn, ResultSet resultSet){
         try {
         	PreparedStatement prepStat = conn.prepareStatement("SELECT role_id FROM " + dbName + ".persons WHERE id = ?");
@@ -143,7 +143,7 @@ public class Record {
     }
 
     public static boolean checkDivisionExists(int divisionID, Connection conn, ResultSet resultSet) {
-    	boolean exists = false; 
+    	boolean exists = false;
     	try {
     		PreparedStatement prepStat = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".divisions WHERE id = ?	");
         	prepStat.setInt(1, divisionID);
@@ -266,13 +266,13 @@ public class Record {
     }
 
     /*Creates new record and returns the id of the new record. Returns 0 if the creation fails.*/
-    public static int create(int personID, int nurseID, int patientID, int divisionID, String text, 
+    public static int create(int personID, int nurseID, int patientID, int divisionID, String text,
     		Connection conn, ResultSet resultSet) {
     	int newID = 0;
         try {
             //executeUpdate() is used when the table is altered by the statement.
         	PreparedStatement prepStat = conn.prepareStatement("INSERT INTO " + dbName + ".records VALUES(default, ?, ?, ?, ?, ?)");
-            //statement.executeUpdate("INSERT INTO " + dbName + ".records VALUES(default, '" + 
+            //statement.executeUpdate("INSERT INTO " + dbName + ".records VALUES(default, '" +
             //    text + "', " + patientID + ", " + personID + ", " + nurseID + ", " +
             //    divisionID + ");");
         	prepStat.setString(1, text);
@@ -328,7 +328,7 @@ public class Record {
 	public static int newPerson(String personName, int roleID, int divisionID, Connection conn, ResultSet resultSet){
 		int id = -1;
 		try {
-			PreparedStatement prepStat = conn.prepareStatement("INSERT INTO " + dbName + ".persons VALUES(default, ?, ?, ?");
+			PreparedStatement prepStat = conn.prepareStatement("INSERT INTO " + dbName + ".persons VALUES(default, ?, ?, ?)");
 			prepStat.setString(1, personName);
 			prepStat.setInt(2, roleID);
 			prepStat.setInt(3, divisionID);

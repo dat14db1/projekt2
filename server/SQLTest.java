@@ -254,11 +254,12 @@ public class SQLTest{
 
     //Returns a list of all persons, thier roles and ids.
     public ArrayList<String> listPersons(int personID) {
+        logAccessAttempt(8, 0, personID);
         ArrayList<String> list = null;
         if (checkPersonRole(personID, 1)) {
             try {
                 list = new ArrayList<String>();
-                preparedStatement = conn.prepareStatement("SELECT persons.id, persons.name, roles.name FROM " + 
+                preparedStatement = conn.prepareStatement("SELECT persons.id, persons.name, roles.name FROM " +
                     dbName + ".persons, " + dbName + ".roles WHERE persons.role_id = roles.id ORDER BY role_id asc;");
                 resultSet = preparedStatement.executeQuery();
                 while (resultSet.next()) {
@@ -272,6 +273,26 @@ public class SQLTest{
             }
         }
         return list;
+    }
+
+    //Returns a list of all persons, thier roles and ids.
+    public ArrayList<String> listDivisions(int personID) {
+        logAccessAttempt(9, 0, personID);
+        ArrayList<String> divList = null;
+        try {
+            divList = new ArrayList<String>();
+            preparedStatement = conn.prepareStatement("SELECT id, name FROM " + dbName + ".divisions");
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                divList.add(resultSet.getInt("id") + ", " + resultSet.getString("name"));
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("SQLException:" + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+        return divList;
     }
 
     public String getPersonName(int personID) {
@@ -325,6 +346,12 @@ public class SQLTest{
             case 7:
                 operationName = "List records";
                 break;
+            case 8:
+                operationName = "List persons";
+                break;
+            case 9:
+                operationName = "List divisions";
+                break;
             default:
                 operationName = "Unknown operation";
                 break;
@@ -335,7 +362,7 @@ public class SQLTest{
         String stringDate = sdfDate.format(timeNow);
         try {
             writer = new BufferedWriter(new FileWriter("hospital_log.txt", true));//True makes the program append
-            if (operation == 5) {//Create
+            if (operation == 5 || operation == 8 || operation == 9) {//Create
                 writer.write(operationName + " attempt by user with id " + personID + " at " + stringDate + ".\n");
             } else if(operation == 7){
                 writer.write(operationName + " by user with id " + personID + " at " + stringDate + ".\n");
