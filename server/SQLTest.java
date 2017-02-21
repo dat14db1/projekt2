@@ -192,7 +192,6 @@ public class SQLTest{
         System.out.println("här då ?");
         try {
             //Use COUNT(*) to check if the record exists
-            System.out.println("här");
             preparedStatement = conn.prepareStatement("SELECT COUNT(*) FROM " + dbName + ".records WHERE id = ?");
             preparedStatement.setInt(1, recordID);
             resultSet = preparedStatement.executeQuery();
@@ -216,7 +215,7 @@ public class SQLTest{
                 System.out.println("getint är noll.");
             }
         } catch (SQLException ex) {
-            System.out.println("SQLException: i denna" + ex.getMessage());
+            System.out.println("SQLException:" + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
         }
@@ -251,6 +250,44 @@ public class SQLTest{
             id = Record.newPerson(newpersonName, newpersonRole, newpersonDivision, conn, resultSet);
         }
         return id;
+    }
+
+    //Returns a list of all persons, thier roles and ids.
+    public ArrayList<String> listPersons(int personID) {
+        ArrayList<String> list = null;
+        if (checkPersonRole(personID, 1)) {
+            try {
+                list = new ArrayList<String>();
+                preparedStatement = conn.prepareStatement("SELECT persons.id, persons.name, roles.name FROM " + 
+                    dbName + ".persons, " + dbName + ".roles WHERE persons.role_id = roles.id ORDER BY role_id asc;");
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    list.add(resultSet.getInt("id") + ", " + resultSet.getString("roles.name") + ", " + resultSet.getString("persons.name"));
+                }
+
+            } catch (SQLException ex) {
+                System.out.println("SQLException:" + ex.getMessage());
+                System.out.println("SQLState: " + ex.getSQLState());
+                System.out.println("VendorError: " + ex.getErrorCode());
+            }
+        }
+        return list;
+    }
+
+    public String getPersonName(int personID) {
+        String name = null;
+        try {
+            preparedStatement = conn.prepareStatement("SELECT name from " + dbName + ".persons WHERE id = ?");
+            preparedStatement.setInt(1, personID);
+            resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            name = resultSet.getString("name");
+        } catch (SQLException ex) {
+            System.out.println("SQLException:" + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+        return name;
     }
 
     public static boolean checkPersonRole(int personID, int reqRole){

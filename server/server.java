@@ -63,7 +63,11 @@ public class server implements Runnable {
             } else if (sqlTest.checkPersonRole(personID, GOVERNMENT)) {
                 person_role = "GOVERNMENT";
             }
-            StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome! You are logged in as " + person_role + ". Write 'help' for options \n \n");
+            String personName = sqlTest.getPersonName(personID);
+            if (personName == null) {
+                personName = "";
+            }
+            StringBuilder welcome_message = new StringBuilder(nolines + "\nWelcome " + personName + "! You are logged in as " + person_role + ". Write 'help' for options \n \n");
 
             welcome_message.append("You have permission to read the following patient records: \n");
 
@@ -77,7 +81,7 @@ public class server implements Runnable {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             out.println(welcome_message.toString());
-            System.out.println(welcome_message.toString());
+            //System.out.println(welcome_message.toString());
             out.flush();
 
             String clientMsg = null;
@@ -239,6 +243,20 @@ public class server implements Runnable {
                         case "help":
                             answer_message.append(stateOptions());
                         break;
+                    case "listpersons":
+                        //Return a list with all staff and patients together with their id:s.
+                        //Only doctors are allowed to do this operation.
+                        ArrayList<String> list = sqlTest.listPersons(personID);
+                        if (list == null) {//Operation not allowed.
+                            answer_message.append(2 + "\nOnly doctors may list persons.\n");
+                        } else {
+                            nolines = list.size() + 1;
+                            answer_message.append(nolines + "\n");
+                            for (String s : list) {
+                                answer_message.append(s + "\n");
+                            }
+                        }
+                        break;
                     default:
                         answer_message.append(2 + "\nInvalid operation.\n");
                         System.out.println("client msg: " + clientMsg);
@@ -327,6 +345,7 @@ public class server implements Runnable {
         sb.append("Create a new record: \ncreate <nurse id> <patient id> <division id> <record text> \n");
         sb.append("Add new patient to database: \nnewpatient <division id> <name>\n");
         sb.append("Update an existnig record: \nupdate <record id> <new record text>\n");
+        sb.append("List all persons: \nlistpersons\n");
         sb.append("List all options: \nhelp\n");
         return sb.toString();
     }
