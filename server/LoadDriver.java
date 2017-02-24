@@ -12,10 +12,17 @@ public class LoadDriver {
 	public Statement statement;
 	public ResultSet resultSet;
 	public Connection conn;
+	/*
 	public String serverAddress = "sql11.freemysqlhosting.net";
    	public static String dbName = "sql11159176";
    	public String dbUser = "sql11159176";
    	public String dbPassword = "gk44qK7qXT";
+*/
+   	public String serverAddress = "localhost";
+   	public static String dbName = "hospital_db";
+   	public String dbUser = "hospital";
+   	public String dbPassword = "password";
+
     public LoadDriver() {
         try {
             // The newInstance() call is a work around for some

@@ -188,9 +188,13 @@ public class server implements Runnable {
                             System.out.println(words[i]);
                             text.append(words[i] + " ");
                         }
-                        answer_message.append(2 + "\nCreate with valid arguments. New record created.\n");
 
                         temp = sqlTest.createRecord(personID, Integer.parseInt(words[1]),Integer.parseInt(words[2]),Integer.parseInt(words[3]), text.toString());
+                        if (temp != null) {
+                            answer_message.append(2 + "\nCreate with valid arguments. New record created.\n");
+                        } else {
+                            answer_message.append(2 + "\nFailed to create new record.\n");
+                        }
                     break;
                     case "newpatient": // division, name
                         if (words.length < 3) {

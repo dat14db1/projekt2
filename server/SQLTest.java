@@ -284,7 +284,7 @@ public class SQLTest{
             preparedStatement = conn.prepareStatement("SELECT id, name FROM " + dbName + ".divisions");
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                divList.add(resultSet.getInt("id") + ", " + resultSet.getString("name"));
+                divList.add(resultSet.getInt("id") + ": " + resultSet.getString("name"));
             }
 
         } catch (SQLException ex) {
